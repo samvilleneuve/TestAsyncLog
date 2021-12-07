@@ -1,9 +1,4 @@
-﻿// <author>Samuel Villeneuve</author>
-// <date>2021-07-28</date>
-// <Creation auteur = 'svilleneuve' date='28/07/21'/>
-// <summary>An enumeration for the different results to take when an error is discovered.</summary>
-
-namespace TestAsyncLog
+﻿namespace TestAsyncLog
 {
     /// <summary>
     /// An enumeration for the different results to take when an error is discovered.

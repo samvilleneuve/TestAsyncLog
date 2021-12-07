@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
-using System.Web;
 
 namespace TestAsyncLog
 {

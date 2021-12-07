@@ -64,23 +64,24 @@ namespace TestAsyncLog
                 int iMAX_ATTEMPT_LOG_FILE = int.Parse(Properties.Resources.iMaxAttemptLogFileBeforeEventLog);
                 long lTAILLE_MAX = CsrfSettings.Settings.MaxSizeLogFile;
                 string sFICHIER_TRACE_DEFAUT = Path.GetTempPath() + Properties.Resources.sLogFileName;
-                string sFichierTrace = String.Empty;
+                string sFichierTrace = String.Empty;    // Fichier où l'on écrit (le fichier zéro pour les rotations)
+                string sParamFichierTraceRotationOnly = String.Empty;   // Fichier de trace avec le paramètre de rotation restant
                 bool bNumericRotation = false;
                 string sParentDir = String.Empty;
-                int iParamNumericRotation = -1;
+                int iParamMaxNumericRotation = -1;
                 int iNumericRotationLenght = -1;
-                string sNumericRotationParam = String.Empty;
-                string sFileName = String.Empty;
+                string sParamMaxNumericRotation = String.Empty;
+                string sFileNameOnly = String.Empty;
                 try
                 {
-                    string sFichierTraceFromParam = CsrfSettings.Settings.LogFile;
-                    sFichierTraceFromParam = sFichierTraceFromParam.Replace("%TempPath%", Path.GetTempPath());
-                    sFichierTraceFromParam = sFichierTraceFromParam.Replace("%Date%", $"{DateTime.Now:yyyyMMdd}");
+                    string sParamFichierTrace = CsrfSettings.Settings.LogFile;
+                    sParamFichierTrace = sParamFichierTrace.Replace("%TempPath%", Path.GetTempPath());
+                    sParamFichierTrace = sParamFichierTrace.Replace("%Date%", $"{DateTime.Now:yyyyMMdd}");
 
-                    sParentDir = Directory.GetParent(sFichierTraceFromParam).FullName;
-                    DirectoryInfo parentDir = Directory.GetParent(sFichierTraceFromParam);
+                    sParentDir = Directory.GetParent(sParamFichierTrace).FullName;
+                    DirectoryInfo parentDir = Directory.GetParent(sParamFichierTrace);
 
-                    MatchCollection matchCollection = Regex.Matches(sFichierTraceFromParam, "%Rotate=(\\d+)%");
+                    MatchCollection matchCollection = Regex.Matches(sParamFichierTrace, "%Rotate=(\\d+)%");
                     if (matchCollection.Count != 0)
                     {
                         // Rotation possible
@@ -89,21 +90,22 @@ namespace TestAsyncLog
                             throw new ApplicationException("Erreur de détection de la rotation dans le paramètre du fichier de log!");
                         }
                         // Rotation certaine
-                        iParamNumericRotation = int.Parse(matchCollection[0].Groups[1].Value);
+                        iParamMaxNumericRotation = int.Parse(matchCollection[0].Groups[1].Value);
                         iNumericRotationLenght = matchCollection[0].Groups[1].Value.Length;
-                        sNumericRotationParam = iParamNumericRotation.ToString("D" + iNumericRotationLenght);
+                        sParamMaxNumericRotation = iParamMaxNumericRotation.ToString("D" + iNumericRotationLenght);
                         bNumericRotation = true;
                         int iZero = 0;
                         string sZeroRotation = iZero.ToString("D" + matchCollection[0].Groups[1].Value.Length);
-                        sFichierTraceFromParam = Regex.Replace(sFichierTraceFromParam, "%Rotate=(\\d+)%", m => sZeroRotation);
+                        sParamFichierTraceRotationOnly = sParamFichierTrace;
+                        sParamFichierTrace = Regex.Replace(sParamFichierTrace, "%Rotate=(\\d+)%", m => sZeroRotation);
                     }
-                    sFileName = sFichierTraceFromParam.Substring(sFichierTraceFromParam.LastIndexOf(Path.DirectorySeparatorChar) + 1);
-                    sFichierTrace = sFichierTraceFromParam;
+                    sFileNameOnly = sParamFichierTrace.Substring(sParamFichierTrace.LastIndexOf(Path.DirectorySeparatorChar) + 1);
+                    sFichierTrace = sParamFichierTrace;
                 }
                 catch
                 {
                     // On utilise la valeur par défaut dans le fichier de ressource si il y a eu une erreur dans le traitement du paramètre "LogFile" (CsrfSettings.Settings.LogFile)
-                    sFileName = sFICHIER_TRACE_DEFAUT.Substring(sFICHIER_TRACE_DEFAUT.LastIndexOf(Path.DirectorySeparatorChar) + 1);
+                    sFileNameOnly = sFICHIER_TRACE_DEFAUT.Substring(sFICHIER_TRACE_DEFAUT.LastIndexOf(Path.DirectorySeparatorChar) + 1);
                     sFichierTrace = sFICHIER_TRACE_DEFAUT;
                 }
 
@@ -115,7 +117,7 @@ namespace TestAsyncLog
                 string sTrace = $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}{sSEP_LOG}{sDetailLog}{Environment.NewLine}";
                 string sTraceHeader = $"DateTime (yyyy/MM/dd HH:mm:ss.fff){sSEP_LOG}{sHeaderLog}{Environment.NewLine}";
 
-                using (new SingleGlobalInstance(5000, sFileName)) //1000ms timeout on global lock
+                using (new SingleGlobalInstance(5000, sFileNameOnly)) //5000ms timeout on global lock
                 {
                     // Perform log work here.
                     // Only 1 of these runs at a time
@@ -130,19 +132,25 @@ namespace TestAsyncLog
                                 if (bNumericRotation == false)
                                 {
                                     // Pas de rotation ==> On supprime le fichier existant.
-                                    //File.Delete(sFichierTrace);
+                                    File.Delete(sFichierTrace);
                                 }
                                 else
                                 {
-                                    // Rotation ==> On renomme les fichiers en augmentant l'indice de 1 (exemple pour une rotation sur "03", dans l'ordre : on supprime le "03", renommage "02" ==> "03", renommage "01" ==> "02", renommage "00" ==> "01" et on écrit dans le "00").
-                                    string sLastFile = Regex.Replace(sFichierTrace, "%Rotate=(\\d+)%", m => sNumericRotationParam);
+                                    // Rotation ==> On renomme les fichiers en augmentant l'indice de 1
+                                    // Exemple pour une rotation sur "03", dans l'ordre :
+                                    //      - on supprime le "03",
+                                    //      - renommage "02" ==> "03",
+                                    //      - renommage "01" ==> "02",
+                                    //      - renommage "00" ==> "01"
+                                    //      - on écrit dans le "00".
+                                    string sLastFile = Regex.Replace(sParamFichierTraceRotationOnly, "%Rotate=(\\d+)%", m => sParamMaxNumericRotation);
                                     File.Delete(sLastFile); // Si le fichier à supprimer n’existe pas, aucune exception n’est levée.
-                                    for (int iRotation = iParamNumericRotation - 1; iRotation >= 0; iRotation--)
+                                    for (int iRotation = iParamMaxNumericRotation - 1; iRotation >= 0; iRotation--)
                                     {
                                         string sIndiceRotationFrom = iRotation.ToString("D" + iNumericRotationLenght);
-                                        FileInfo objFileRotationFrom = new FileInfo(Regex.Replace(sFichierTrace, "%Rotate=(\\d+)%", m => sIndiceRotationFrom));
+                                        FileInfo objFileRotationFrom = new FileInfo(Regex.Replace(sParamFichierTraceRotationOnly, "%Rotate=(\\d+)%", m => sIndiceRotationFrom));
                                         string sIndiceRotationTo = (iRotation + 1).ToString("D" + iNumericRotationLenght);
-                                        string sRotateFileName = Regex.Replace(sFichierTrace, "%Rotate=(\\d+)%", m => sIndiceRotationTo);
+                                        string sRotateFileName = Regex.Replace(sParamFichierTraceRotationOnly, "%Rotate=(\\d+)%", m => sIndiceRotationTo);
                                         if (objFileRotationFrom.Exists)
                                         {
                                             FileInfo objFileInfoTo = new FileInfo(sRotateFileName);

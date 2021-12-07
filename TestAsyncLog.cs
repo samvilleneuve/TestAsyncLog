@@ -19,6 +19,18 @@ namespace TestAsyncLog
         public void StartTest()
         {
             // A compléter avec du multitask qui effectue des appels à LogAsync !
+            Logger moduleLogger = new Logger();
+            HttpContext context = HttpContext.Current;
+            string sLogEventName = "PreRequestHandlerExecute";
+
+            string sDetailLog = String.Empty;
+
+            for (int i = 1; i <= 200; i++)
+            {
+                sDetailLog = String.Format("Test A{0}", i.ToString());
+                moduleLogger.LogAsync(LogCategory.Information, sDetailLog, context, sLogEventName);
+                Thread.Sleep(100);
+            }
         }
     }
 

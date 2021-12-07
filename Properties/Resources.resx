@@ -125,7 +125,6 @@
   </data>
   <data name="sLogFileName" xml:space="preserve">
     <value>csNETpWASPUTL_ficWASP777_ModuleXSRF.log.tsv</value>
-    <comment>Utilisé si la lecture et interprétation du paramètre "logFile" échoue.</comment>
   </data>
   <data name="sSeparator_log" xml:space="preserve">
     <value>\t</value>
