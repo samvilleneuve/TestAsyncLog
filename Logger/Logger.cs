@@ -164,7 +164,8 @@ namespace TestAsyncLog
                                     }
                                 }
                             }
-                            if ((!objFileInfo.Exists) || (objFileInfo.Exists && objFileInfo.Length == 0))
+                            FileInfo objFile = new FileInfo(sFichierTrace);
+                            if ((!objFile.Exists) || (objFile.Exists && objFile.Length == 0))
                             {
                                 File.AppendAllText(sFichierTrace, sTraceHeader);
                             }
