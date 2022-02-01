@@ -61,3 +61,7 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+# Un-vendor paths containing js and css files
+Scripts/** -linguist-vendored
+Content/** -linguist-vendored
