@@ -121,15 +121,18 @@
     <value>5</value>
   </data>
   <data name="sEventLogMessageFormat" xml:space="preserve">
-    <value>Requête suspecte CSRF détectée : {0}</value>
+    <value>Erreur détectée : {0}</value>
   </data>
   <data name="sLogFileName" xml:space="preserve">
-    <value>csNETpWASPUTL_ficWASP777_ModuleXSRF.log.tsv</value>
+    <value>TestASyncLog.log.tsv</value>
   </data>
   <data name="sSeparator_log" xml:space="preserve">
     <value>\t</value>
   </data>
+  <data name="sSeparator_log_internal" xml:space="preserve">
+    <value>|</value>
+  </data>
   <data name="sSourceEventLog" xml:space="preserve">
-    <value>Module Anti-CSRF ZCWB</value>
+    <value>TestASyncLog</value>
   </data>
 </root>

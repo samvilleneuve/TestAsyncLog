@@ -13,21 +13,36 @@ namespace TestAsyncLog
     {
         public bool _hasHandle = false;
         Mutex _mutex;
+        string _fullMutexName = string.Empty;
 
-        private void InitMutex(string sMutexName)
+        public string MutexName { 
+            get {
+                if (_mutex != null)
+                {
+                    return _fullMutexName;
+                }
+                else
+                { 
+                    return String.Empty; 
+                }
+            } 
+        }
+
+        private void InitMutex(string sShortMutexName)
         {
-            string mutexId = String.Empty;
+            string sMutexId = String.Empty;
             // unique id for global mutex - Global prefix means it is global to the machine
-            if (String.IsNullOrEmpty(sMutexName))
+            if (String.IsNullOrEmpty(sShortMutexName))
             {
                 string appGuid = ((GuidAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(GuidAttribute), false).GetValue(0)).Value;
-                mutexId = string.Format("Global\\{{{0}}}", appGuid);
+                sMutexId = string.Format("Global\\{{{0}}}", appGuid);
             }
             else
             {
-                mutexId = string.Format("Global\\{{{0}}}", sMutexName);
+                sMutexId = string.Format("Global\\{{{0}}}", sShortMutexName);
             }
-            _mutex = new Mutex(false, mutexId);
+            _fullMutexName = sMutexId;
+            _mutex = new Mutex(false, _fullMutexName);
 
             var allowEveryoneRule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MutexRights.FullControl, AccessControlType.Allow);
             var securitySettings = new MutexSecurity();
@@ -35,13 +50,16 @@ namespace TestAsyncLog
             _mutex.SetAccessControl(securitySettings);
         }
 
-        public SingleGlobalInstance(int timeOut) : this(timeOut, String.Empty)
-        {
+        public SingleGlobalInstance(int timeOut, out string sFullMutexName) : this(timeOut, String.Empty, out sFullMutexName)
+        {        
         }
 
-        public SingleGlobalInstance(int timeOut, string sMutexName)
+        
+
+        public SingleGlobalInstance(int timeOut, string sShortMutexName, out string sFullMutexName)
         {
-            InitMutex(sMutexName);
+            InitMutex(sShortMutexName);
+            sFullMutexName = this.MutexName;
             try
             {
                 if (timeOut < 0)
@@ -60,14 +78,12 @@ namespace TestAsyncLog
             }
         }
 
-
         public void Dispose()
         {
             if (_mutex != null)
             {
                 if (_hasHandle)
                     _mutex.ReleaseMutex();
-                _mutex.Close();
             }
         }
 

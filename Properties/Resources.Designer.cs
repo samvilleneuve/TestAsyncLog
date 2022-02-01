@@ -70,7 +70,7 @@ namespace TestAsyncLog.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Requête suspecte CSRF détectée : {0}.
+        ///   Looks up a localized string similar to Erreur détectée : {0}.
         /// </summary>
         internal static string sEventLogMessageFormat {
             get {
@@ -79,7 +79,7 @@ namespace TestAsyncLog.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to csNETpWASPUTL_ficWASP777_ModuleXSRF.log.tsv.
+        ///   Looks up a localized string similar to TestASyncLog.log.tsv.
         /// </summary>
         internal static string sLogFileName {
             get {
@@ -97,7 +97,16 @@ namespace TestAsyncLog.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Module Anti-CSRF ZCWB.
+        ///   Looks up a localized string similar to |.
+        /// </summary>
+        internal static string sSeparator_log_internal {
+            get {
+                return ResourceManager.GetString("sSeparator_log_internal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TestASyncLog.
         /// </summary>
         internal static string sSourceEventLog {
             get {

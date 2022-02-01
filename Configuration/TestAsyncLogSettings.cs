@@ -5,9 +5,9 @@
     using System.Reflection;
 
     /// <summary>
-    /// Configuration settings for the CSRF module.
+    /// Configuration settings
     /// </summary>
-    public sealed class CsrfSettings : ConfigurationSection
+    public sealed class TestAsyncLogSettings : ConfigurationSection
     {
         //==========================
 
@@ -36,7 +36,7 @@
         /// <summary>
         /// Log Assembly Name.
         /// </summary>
-        // TODO: AntiCsrf - La valeur initiale du paramètre sLogAssemblyName ne récupère pas comme attendu le nom de l'assembly appelante
+        // TODO: La valeur initiale du paramètre sLogAssemblyName ne récupère pas comme attendu le nom de l'assembly appelante
         private static string sLogAssemblyNameInitialValue = Assembly.GetCallingAssembly().FullName;
         private const string sLogAssemblyNameDefaultValue = "<CurrentCallingAssemblyName>";
 
@@ -48,7 +48,7 @@
         /// <summary>
         /// The log file name and location
         /// </summary>
-        private const string sLogFileDefaultValue = "%TempPath%csNETpWASPUTL_ficWASP777_ModuleXSRF.log.tsv";
+        private const string sLogFileDefaultValue = "%TempPath%TestAsyncLog.log.tsv";
 
         /// <summary>
         /// The maximum size of current log file (in bytes)
@@ -58,24 +58,24 @@
         //==========================
 
         /// <summary>
-        /// The CSRF settings.
+        /// The application settings.
         /// </summary>
-        private static CsrfSettings settings =
-            ConfigurationManager.GetSection("test/csrfSettings") as CsrfSettings;
+        private static TestAsyncLogSettings settings =
+            ConfigurationManager.GetSection("test/testAsyncLogSettings") as TestAsyncLogSettings;
 
 
         /// <summary>
-        /// Gets the CSRF Settings.
+        /// Gets the application Settings.
         /// </summary>
-        /// <value>The CSRF Settings.</value>
-        public static CsrfSettings Settings
+        /// <value>The application Settings.</value>
+        public static TestAsyncLogSettings Settings
         {
             get
             {
                 // If the configuration setting is not present create one with the default values.
                 if (settings == null)
                 {
-                    settings = new CsrfSettings
+                    settings = new TestAsyncLogSettings
                                    {
                                         LogAssemblyName = sLogAssemblyNameInitialValue,
                                         Log_Level = sLogLevelDefaultValue,
