@@ -62,6 +62,6 @@
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
 
-# Un-vendor paths containing js and css files
-Scripts/** -linguist-vendored
-Content/** -linguist-vendored
+# Exclude js and css files from language statistics
+*.js -linguist-detectable
+*.css -linguist-detectable
